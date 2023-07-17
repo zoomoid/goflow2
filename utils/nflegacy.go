@@ -74,13 +74,17 @@ func (s *StateNFLegacy) DecodeFlow(msg interface{}) error {
 	var flowMessageSet []*flowmessage.FlowMessage
 	flowMessageSet, err = producer.ProcessMessageNetFlowLegacy(msgDec)
 
-	timeTrackStop := time.Now()
 	DecoderTime.With(
 		prometheus.Labels{
 			"name": "NetFlowV5",
 		}).
-		Observe(float64((timeTrackStop.Sub(timeTrackStart)).Nanoseconds()) / 1000)
+		Observe(float64(time.Since(timeTrackStart).Microseconds()))
 
+	DecoderDurationMicroseconds.With(
+		prometheus.Labels{
+			"name": "NetFlow",
+		}).
+		Observe(float64(time.Since(timeTrackStart).Microseconds()))
 	for _, fmsg := range flowMessageSet {
 		fmsg.TimeReceived = ts
 		fmsg.SamplerAddress = samplerAddress

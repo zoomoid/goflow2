@@ -315,12 +315,17 @@ func (s *StateNetFlow) DecodeFlow(msg interface{}) error {
 		}
 	}
 
-	timeTrackStop := time.Now()
 	DecoderTime.With(
 		prometheus.Labels{
 			"name": "NetFlow",
 		}).
-		Observe(float64((timeTrackStop.Sub(timeTrackStart)).Nanoseconds()) / 1000)
+		Observe(float64(time.Since(timeTrackStart).Microseconds()))
+
+	DecoderDurationMicroseconds.With(
+		prometheus.Labels{
+			"name": "NetFlow",
+		}).
+		Observe(float64(time.Since(timeTrackStart).Microseconds()))
 
 	for _, fmsg := range flowMessageSet {
 		if s.Format != nil {
